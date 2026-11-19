@@ -363,6 +363,7 @@ nav button.on{background:#fff;color:#000}
     <div class="walkrow"><button class="btn" id="walkbtn" onclick="toggleWalk()"><span id="walktxt">Spaziergang starten</span><span class="arr"><svg viewBox="0 0 12 12"><path d="M3 2l7 4-7 4z" fill="currentColor"/></svg></span></button></div>
     <div class="weekcard"><div class="hd"><b>Diese Woche</b><span class="mono" id="weeksum"></span></div><div class="bars" id="bars"></div></div>
     <div class="qsteps" id="qsteps"></div>
+    <div class="qsteps" id="healthcard" style="flex-direction:column;align-items:stretch;padding:16px 18px"></div>
     <p class="note mono">Schritte kommen aus Apple Health (über den Kurzbefehl) oder werden beim Spaziergang per GPS gemessen.</p>
   </section>
 
@@ -472,8 +473,8 @@ return maplibregl$1;
    Project Settings → API → Project URL und Publishable/anon key.
    Leer lassen = App läuft ohne Server (nur auf diesem Gerät).
    ============================================================ */
-const SUPABASE_URL = '';
-const SUPABASE_KEY = '';
+const SUPABASE_URL = 'https://jvgrwmufyikxuztbyydt.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_s_z_bTMHs0WOSpkJMrllWw_F3NQhv92';
 
 const $=s=>document.querySelector(s);
 function rng(seed){let s=seed>>>0||1;return()=>{s^=s<<13;s>>>=0;s^=s>>17;s^=s<<5;s>>>=0;return s/4294967296}}
@@ -1005,7 +1006,7 @@ function renderSteps(){
   $('#segs').innerHTML=Array.from({length:20},(_,i)=>`<i class="${i<on?'on':''} ${i===on-1&&pct<1?'last':''}"></i>`).join('');
   $('#km').textContent=(steps*0.00072).toFixed(1).replace('.',',');$('#kcal').textContent=Math.round(steps*0.04);$('#mins').textContent=Math.round(steps/105);
   const days=['Mo','Di','Mi','Do','Fr','Sa','So'],now=new Date(),today=(now.getDay()+6)%7;
-  const w=days.map((_,i)=>{const d=new Date(now);d.setDate(now.getDate()-today+i);const k=d.toISOString().slice(0,10);return i===today?steps:i>today?0:(HIST[k]||0)});
+  const w=days.map((_,i)=>{const d=new Date(now);d.setDate(now.getDate()-today+i);const k=localKey(d);return i===today?steps:i>today?0:(HIST[k]||0)});
   const max=Math.max(10000,...w);
   $('#bars').innerHTML=w.map((v,i)=>`<div><i class="${i===today?'today':v>=10000?'goal':''}" style="height:${Math.max(6,v/max*100)}px"></i><span class="mono" style="color:var(--lav-ink)">${days[i]}</span></div>`).join('');
   $('#weeksum').textContent='Ø '+fmt(Math.round(w.slice(0,today+1).reduce((a,b)=>a+b,0)/(today+1)))+' / Tag';
@@ -1111,9 +1112,39 @@ async function makeGroup(){const n=$('#ng').value.trim();if(!n)return;
     if(!CHATS.find(c=>c.id===r.data.id))CHATS.unshift(chatFromRow(r.data));closeSheet();renderChats();openChat(r.data.id);return}
   CHATS.unshift({id:'g'+Date.now(),name:n,av:'',grp:1,col:'#000',members:1,unread:0,type:'quest',msgs:[['@event','Gruppe erstellt – lade Leute ein!']]});save();closeSheet();renderChats();openChat(CHATS[0].id)}
 
+/* ===== Apple-Health-Abgleich über den Server (Kurzbefehl läuft im Hintergrund) ===== */
+function syncCode(){let c=null;try{c=localStorage.getItem('cw-sync')}catch(e){}
+  if(!c){const a='abcdefghjkmnpqrstuvwxyz23456789';c='';const r=new Uint32Array(16);(crypto.getRandomValues?crypto.getRandomValues(r):r.forEach((_,i)=>r[i]=Math.random()*1e9));r.forEach(x=>c+=a[x%a.length]);try{localStorage.setItem('cw-sync',c)}catch(e){}}
+  return c}
+let stepClient=null;
+async function pullHealthSteps(){
+  if(!SUPABASE_URL||!SUPABASE_KEY||typeof supabase==='undefined')return;
+  try{stepClient=stepClient||cloud.sb||supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false}});
+    const {data,error}=await stepClient.rpc('get_steps',{p_code:syncCode()});
+    if(error){console.warn(error);return}
+    const row=Array.isArray(data)?data[0]:data;if(!row)return;
+    if(row.day===dayKey()){if(walking){return}
+      steps=row.steps;localStorage.setItem('cw-health',JSON.stringify({day:row.day,at:Date.parse(row.updated_at)||Date.now()}));save();renderSteps();renderHealthCard()}
+  }catch(e){console.warn(e)}
+}
+function copyText(t,msg){try{navigator.clipboard.writeText(t).then(()=>toast(msg||'Kopiert'),()=>toast('Bitte manuell kopieren'))}catch(e){toast('Bitte manuell kopieren')}}
+function renderHealthCard(){const el=$('#healthcard');if(!el)return;
+  if(!SUPABASE_URL){el.style.display='none';return}
+  const lbl=healthLabel();
+  el.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><b>♥ Apple Health</b><span class="mono">${lbl?'verbunden':'noch nicht verbunden'}</span></div>
+   <span class="mono" style="margin-top:6px">${lbl?lbl.replace('♥ Apple Health · ','Zuletzt aktualisiert: '):'Code unten in deinen Kurzbefehl eintragen'}</span>
+   <div style="display:flex;gap:8px;align-items:center;margin-top:12px"><span style="flex:1;font:500 15px 'JetBrains Mono',monospace;background:#fff;border-radius:999px;padding:10px 14px;overflow:hidden;text-overflow:ellipsis">${syncCode()}</span>
+   <button class="pill sm" onclick="copyText(syncCode(),'Code kopiert')">Kopieren</button></div>
+   <div style="display:flex;gap:8px;margin-top:10px"><button class="pill sm" onclick="pullHealthSteps().then(()=>toast('Aktualisiert'))">Neu laden</button>
+   <a class="pill sm out" style="text-decoration:none;color:#000" href="shortcuts://run-shortcut?name=Walks">Kurzbefehl ausführen</a></div>`;
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')pullHealthSteps()});
+setInterval(pullHealthSteps,5*60*1000);
+
 /* ===== persistence (this device only) ===== */
 const KEY='creative-walks-v1';
-const dayKey=()=>new Date().toISOString().slice(0,10);
+const localKey=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const dayKey=()=>localKey(new Date());
 function save(){
   try{localStorage.setItem(KEY,JSON.stringify({
     day:dayKey(),steps,progress,done:[...done],joined,
@@ -1151,7 +1182,7 @@ load();
 function healthLabel(){try{const h=JSON.parse(localStorage.getItem('cw-health')||'null');if(h&&h.day===dayKey())return '♥ Apple Health · '+new Date(h.at).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})+' Uhr'}catch(e){}return ''}
 
 /* ===== init ===== */
-renderRoutes(); renderChips(); renderQuests(); renderSteps();
+renderRoutes(); renderChips(); renderHealthCard(); pullHealthSteps(); renderQuests(); renderSteps();
 initCloud();
 const h0=(location.hash||'').slice(1); if(['map','feed','steps','chats'].includes(h0))go(h0);
 </script>
