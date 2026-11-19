@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Creative Walks</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Walks">
+<meta name="theme-color" content="#f3f1ec">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3f1ec; --ink:#0d0d0d; --card:#fff; --grey:#8b877f; --rule:#d6d1c6;
+  --orange:#ef5a3c; --lav:#b9a6ef; --lav-ink:#2a1f55; --black:#0b0b0b; --pill:#1d1d1d;
+  --r-lg:30px; --r-md:22px; --r-sm:16px;
+  --dots:radial-gradient(rgba(0,0,0,.09) 1px,transparent 1.3px);
+  --dots-w:radial-gradient(rgba(255,255,255,.13) 1px,transparent 1.3px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;font-family:"Inter Tight",system-ui,sans-serif;color:var(--ink);background:#e7c4dc}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+input{font:inherit}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10.5px;letter-spacing:.02em;text-transform:uppercase}
+sup.n{font-family:"JetBrains Mono",monospace;font-size:.32em;font-weight:500;letter-spacing:0;vertical-align:top;position:relative;top:.35em;margin-left:2px}
+
+#phone{position:relative;margin:0 auto;height:100%;max-width:440px;overflow:hidden;background:var(--bg)}
+@media (min-width:600px){
+  body{display:flex;align-items:center;justify-content:center;padding:24px}
+  #phone{height:min(900px,calc(100vh - 48px));width:410px;border-radius:52px;border:11px solid #0b0b0b;box-shadow:0 40px 90px rgba(60,20,50,.35)}
+}
+.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;display:none;padding:env(safe-area-inset-top) 0 110px;background-color:var(--bg);background-image:var(--dots);background-size:18px 18px}
+.screen.active{display:block}
+.screen::-webkit-scrollbar{display:none}
+.dark{background-color:var(--black)!important;background-image:var(--dots-w)!important;color:#fff}
+.orange{background-color:var(--orange)!important;background-image:var(--dots-w)!important;color:#fff}
+
+/* floating pill nav */
+nav{position:absolute;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:50;display:flex;gap:4px;padding:6px;border-radius:999px;
+  background:rgba(22,22,22,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 10px 30px rgba(0,0,0,.25)}
+nav button{width:54px;height:46px;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#a9a6a0;transition:background .2s,color .2s}
+nav button svg{width:22px;height:22px}
+nav button.on{background:#fff;color:#000}
+
+/* shared type */
+.top{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 0}
+.brand{display:flex;align-items:center;gap:7px;font-weight:600;font-size:14px}
+.brand i{width:12px;height:12px;background:currentColor;clip-path:polygon(0 0,50% 0,50% 50%,100% 50%,100% 100%,0 100%)}
+.ava{width:38px;height:38px;border-radius:50%;background-size:cover;background-position:center;flex:none;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.big{font-weight:600;letter-spacing:-.055em;line-height:.86;margin:0}
+.title{padding:14px 20px 0}
+.title .big{font-size:74px}
+.lede{padding:12px 20px 0;font-size:15px;line-height:1.25;font-weight:500;letter-spacing:-.01em}
+.lede u{text-decoration-thickness:1.5px;text-underline-offset:3px}
+.lede .hl{color:var(--lav)}
+.arr{width:30px;height:30px;border-radius:50%;border:1.5px solid currentColor;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.arr svg{width:13px;height:13px}
+.arr.fill{background:#000;color:#fff;border-color:#000}
+.pill{display:inline-flex;align-items:center;gap:4px;height:38px;padding:0 16px;border-radius:999px;font-weight:600;font-size:16px;letter-spacing:-.02em;white-space:nowrap;background:#000;color:#fff}
+.pill.out{background:transparent;color:inherit;box-shadow:inset 0 0 0 1.5px currentColor}
+.pill.white{background:#fff;color:#000}
+.pill.lav{background:var(--lav);color:#000}
+.pill.sm{height:32px;font-size:14px;padding:0 13px}
+.pill sup.n{font-size:10px;top:-.2em}
+.pills{display:flex;gap:6px;overflow-x:auto;padding:14px 20px 4px}
+.pills::-webkit-scrollbar{display:none}
+.btn{display:inline-flex;align-items:center;justify-content:space-between;gap:12px;height:52px;padding:0 8px 0 20px;border-radius:999px;background:#000;color:#fff;font-weight:600;font-size:16px;letter-spacing:-.02em}
+.btn .arr{width:38px;height:38px;background:#fff;color:#000;border:0}
+.btn.light{background:#fff;color:#000}
+.btn.light .arr{background:#000;color:#fff}
+.btn.full{width:100%}
+.rule{height:1.5px;background:var(--ink);margin:0 20px}
+
+/* QUESTS */
+.stats{display:flex;margin:18px 20px 0;border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink)}
+.stats div{flex:1;padding:10px 0 10px 12px}
+.stats div:first-child{padding-left:0}
+.stats div+div{border-left:1px solid var(--rule)}
+.stats b{display:block;font-size:30px;font-weight:600;letter-spacing:-.04em;line-height:1}
+.stats .mono{color:var(--grey)}
+.panel{margin:22px 10px 0;padding:18px 10px 10px;border-radius:34px;background:var(--orange);color:#fff;background-image:var(--dots-w);background-size:18px 18px}
+.panel .head{display:flex;justify-content:space-between;align-items:center;padding:0 8px}
+.panel h2{font-size:38px;margin:6px 8px 0}
+.panel .pills{padding:12px 8px 12px}
+.panel .pill{height:40px;font-size:18px}
+.panel .pill.out{color:#fff}
+.dcard{background:#f3f1ec;color:#000;border-radius:var(--r-lg);overflow:hidden}
+.dcard .img{height:230px;margin:10px 10px 0;border-radius:22px;background-size:cover;background-position:center}
+.dcard .body{padding:14px 18px 16px}
+.dcard h3{margin:0;font-size:30px;font-weight:600;letter-spacing:-.045em;line-height:.95}
+.dcard p{margin:8px 0 6px;font-size:14.5px;line-height:1.2;font-weight:500;letter-spacing:-.01em}
+.dcard .meta{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+.dcard .meta b{font-size:18px;letter-spacing:-.02em;font-weight:600}
+.sech{display:flex;justify-content:space-between;align-items:flex-end;padding:30px 20px 10px}
+.sech h2{font-size:42px}
+.qlist{padding:0 20px}
+.qrow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 0;border-top:1.5px solid var(--rule)}
+.qrow:last-child{border-bottom:1.5px solid var(--rule)}
+.qrow .th{width:50px;height:50px;border-radius:14px;background-size:cover;background-position:center;flex:none}
+.qrow .t{flex:1;min-width:0}
+.qrow b{display:block;font-size:20px;font-weight:600;letter-spacing:-.035em;line-height:1.05}
+.qrow .done-t{color:var(--grey);text-decoration:line-through;text-decoration-thickness:1.5px}
+.qrow .mono{color:var(--grey);display:flex;gap:10px;align-items:center;margin-top:5px}
+.prog{flex:1;max-width:90px;height:4px;border-radius:4px;background:var(--rule);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--ink)}
+.mosaic{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:16px 20px 0}
+.mosaic div{border-radius:20px;background-size:cover;background-position:center;aspect-ratio:1.25;position:relative}
+.mosaic div.w{grid-column:span 2;aspect-ratio:2}
+.mosaic div.o{background:var(--orange)}
+.mosaic .arr{position:absolute;right:8px;bottom:8px;background:rgba(255,255,255,.8);color:#000;border:0;width:24px;height:24px}
+.foot{padding:22px 20px 0}
+.foot h4{margin:0 0 12px;font-size:26px;font-weight:600;letter-spacing:-.04em;line-height:1}
+.foot h4 .hl{color:var(--lav)}
+.foot h4 u{text-decoration-thickness:2px;text-underline-offset:4px}
+
+/* sheet */
+.scrim{position:absolute;inset:0;background:rgba(10,10,10,.35);backdrop-filter:blur(3px);z-index:80;display:none}
+.scrim.on{display:block}
+.sheet{position:absolute;left:8px;right:8px;bottom:8px;max-height:90%;overflow-y:auto;background:var(--bg);border-radius:36px;z-index:90;transform:translateY(110%);transition:transform .3s cubic-bezier(.2,.9,.25,1);padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+.sheet.on{transform:none}
+.sheet::-webkit-scrollbar{display:none}
+.grab{width:40px;height:5px;border-radius:5px;background:#c9c4b8;margin:10px auto 0}
+.sheet-hero{margin:10px 10px 0;height:220px;border-radius:28px;background-size:cover;background-position:center;position:relative}
+.sheet-hero .pill{position:absolute;left:12px;top:12px}
+.sheet-body{padding:16px 18px 4px}
+.sheet-body h2{font-size:42px;margin:4px 0 10px}
+.sheet-body p{margin:0 0 14px;font-size:15.5px;line-height:1.25;font-weight:500;letter-spacing:-.01em}
+.steps-list{list-style:none;margin:0 0 16px;padding:0}
+.steps-list li{display:flex;gap:12px;align-items:baseline;padding:11px 0;border-top:1.5px solid var(--rule);font-size:18px;font-weight:600;letter-spacing:-.03em}
+.steps-list li:last-child{border-bottom:1.5px solid var(--rule)}
+.steps-list .mono{color:var(--grey);width:22px}
+.field{width:100%;height:52px;padding:0 18px;border-radius:999px;border:0;background:#fff;margin-bottom:10px;outline:0;font-size:16px;font-weight:500}
+.field:focus{box-shadow:inset 0 0 0 1.5px #000}
+.vstack{display:flex;flex-direction:column;gap:8px}
+
+/* MAP */
+#map{padding:0;background:#f5f3ef}
+#mapview{position:absolute;inset:0;overflow:hidden;touch-action:none;cursor:grab}
+#mapview.drag{cursor:grabbing}
+#world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+#pins{position:absolute;inset:0;pointer-events:none}
+.pin{position:absolute;pointer-events:auto;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center}
+.pin .ph{width:58px;height:58px;border-radius:19px;border:3px solid #fff;background-size:cover;background-position:center;box-shadow:0 6px 16px rgba(0,0,0,.28)}
+.pin .tail{width:10px;height:10px;background:#fff;transform:rotate(45deg);margin-top:-7px;border-radius:2px}
+.pin .ct{position:absolute;top:-8px;right:-10px;min-width:24px;height:24px;padding:0 6px;border-radius:12px;background:var(--orange);color:#fff;font:500 11px "JetBrains Mono",monospace;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
+.pin.mine .ph{border-color:var(--lav)}
+.pin.mine .tail{background:var(--lav)}
+.me{position:absolute;width:20px;height:20px;border-radius:50%;background:#1a73e8;border:3px solid #fff;box-shadow:0 0 0 12px rgba(26,115,232,.18),0 2px 6px rgba(0,0,0,.3);transform:translate(-50%,-50%);pointer-events:none}
+.msearch{position:absolute;top:calc(12px + env(safe-area-inset-top));left:12px;right:12px;z-index:5;display:flex;align-items:center;gap:10px;background:#fff;border-radius:999px;padding:6px 6px 6px 18px;box-shadow:0 4px 18px rgba(0,0,0,.14)}
+.msearch input{flex:1;border:0;outline:0;font-size:16px;font-weight:500;background:none;min-width:0;letter-spacing:-.01em}
+.mchips{position:absolute;top:calc(68px + env(safe-area-inset-top));left:0;right:0;z-index:5;display:flex;gap:6px;overflow-x:auto;padding:0 12px 8px}
+.mchips::-webkit-scrollbar{display:none}
+.mchips .pill{box-shadow:0 3px 10px rgba(0,0,0,.15)}
+.mchips .pill.white{box-shadow:0 3px 10px rgba(0,0,0,.15)}
+.fab{position:absolute;right:12px;z-index:5;width:52px;height:52px;border-radius:18px;background:rgba(255,255,255,.82);backdrop-filter:blur(10px);box-shadow:0 3px 12px rgba(0,0,0,.14);display:flex;align-items:center;justify-content:center}
+.mapcard{position:absolute;left:10px;right:10px;bottom:84px;z-index:6;background:#fff;border-radius:28px;box-shadow:0 8px 28px rgba(0,0,0,.2);padding:8px;display:flex;gap:12px;align-items:center}
+.mapcard .ph{width:86px;height:86px;border-radius:21px;background-size:cover;background-position:center;flex:none}
+.mapcard b{display:block;font-size:18px;font-weight:600;letter-spacing:-.03em;line-height:1.05}
+.mapcard .mono{color:var(--grey);display:block;margin-top:5px}
+.routes{position:absolute;left:0;right:0;bottom:84px;z-index:5;display:flex;gap:8px;overflow-x:auto;padding:0 12px 4px}
+.routes::-webkit-scrollbar{display:none}
+.rcard{flex:none;width:222px;background:#fff;border-radius:24px;box-shadow:0 6px 20px rgba(0,0,0,.16);padding:8px 14px 12px 8px;text-align:left;display:flex;gap:10px;align-items:center}
+.rcard .th{width:56px;height:56px;border-radius:16px;background-size:cover;flex:none;position:relative}
+.rcard .th i{position:absolute;left:6px;right:6px;bottom:6px;height:4px;border-radius:4px}
+.rcard b{display:block;font-size:15px;font-weight:600;letter-spacing:-.025em;line-height:1.1}
+.rcard .mono{color:var(--grey);display:block;margin-top:4px;font-size:9.5px}
+
+/* FEED (dark, "created") */
+.feedtop{display:flex;justify-content:space-between;align-items:center;padding:16px 20px 0}
+.feedtop .mono{color:#a9a6a0}
+#feed .title .big{font-size:96px;letter-spacing:-.065em}
+#feed .pill{background:#232323;color:#fff;font-size:15px;height:36px}
+#feed .pill.on{background:#fff;color:#000}
+#feed .pill.lav{background:var(--lav);color:#000}
+.qintro{margin:14px 10px 0;padding:16px 16px 16px;border-radius:28px;background:#1a1a1a;display:flex;gap:14px;align-items:center}
+.qintro .th{width:62px;height:62px;border-radius:18px;background-size:cover;flex:none}
+.qintro b{display:block;font-size:22px;font-weight:600;letter-spacing:-.035em;line-height:1}
+.qintro .mono{color:#a9a6a0;display:flex;gap:12px;margin-top:6px}
+.vtog{display:flex;gap:4px;padding:4px;border-radius:999px;background:#232323}
+.vtog button{width:40px;height:30px;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#a9a6a0}
+.vtog button.on{background:#fff;color:#000}
+.masonry{columns:3;column-gap:6px;padding:14px 10px 0}
+.masonry .g{break-inside:avoid;margin-bottom:6px;border-radius:18px;background-size:cover;background-position:center;position:relative;cursor:pointer}
+.masonry .g.mine::after{content:"DU";position:absolute;left:6px;top:6px;font:500 9px "JetBrains Mono",monospace;background:var(--lav);color:#000;padding:2px 6px;border-radius:999px}
+.post{margin:14px 10px 0;border-radius:32px;background:#1a1a1a;overflow:hidden}
+.post .img{margin:8px 8px 0;border-radius:26px;aspect-ratio:1;background-size:cover;background-position:center;position:relative}
+.post .img .pill{position:absolute;left:10px;top:10px;height:30px;font-size:13px;background:rgba(0,0,0,.55)!important;backdrop-filter:blur(8px)}
+.post .body{padding:12px 16px 16px}
+.post h3{margin:0;font-size:24px;font-weight:600;letter-spacing:-.04em;line-height:1}
+.post .by{display:flex;align-items:center;gap:8px;margin-top:10px}
+.post .by .ava{width:26px;height:26px;border:0}
+.post .by .mono{color:#a9a6a0}
+.post .acts{display:flex;align-items:center;gap:8px;margin-top:14px}
+.post .acts .pill{height:36px}
+.post .acts .sp{flex:1}
+.lk svg{width:18px;height:18px}
+.lk.liked{background:var(--orange)!important;color:#fff!important}
+.lk.liked path{fill:#fff}
+.pop{animation:pop .3s}
+@keyframes pop{50%{transform:scale(1.12)}}
+.empty{margin:20px 10px;padding:30px 20px;border-radius:28px;background:#1a1a1a;text-align:center;font-size:20px;font-weight:600;letter-spacing:-.03em}
+
+/* STEPS (orange) */
+#steps .mono{color:rgba(255,255,255,.8)}
+.stephero{padding:22px 20px 0}
+.stephero .big{font-size:112px;letter-spacing:-.07em}
+.stephero .of{font-size:22px;font-weight:600;letter-spacing:-.03em;margin-top:8px}
+.segs{display:flex;gap:4px;padding:18px 20px 0}
+.segs i{flex:1;height:34px;border-radius:9px;background:rgba(255,255,255,.25)}
+.segs i.on{background:#fff}
+.segs i.on.last{background:#000}
+.minis{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:16px 10px 0}
+.minis div{background:#f3f1ec;color:#000;border-radius:24px;padding:14px 14px 12px}
+.minis b{display:block;font-size:30px;font-weight:600;letter-spacing:-.05em;line-height:1}
+.minis .mono{color:var(--grey)!important;margin-top:6px;display:block}
+.weekcard{margin:6px 10px 0;padding:16px 16px 14px;border-radius:30px;background:var(--lav);color:#000}
+.weekcard .hd{display:flex;justify-content:space-between;align-items:baseline}
+.weekcard .hd b{font-size:26px;font-weight:600;letter-spacing:-.04em}
+.weekcard .mono{color:var(--lav-ink)!important}
+.bars{display:flex;align-items:flex-end;gap:7px;height:130px;margin-top:14px}
+.bars div{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.bars i{display:block;width:100%;border-radius:12px;background:rgba(0,0,0,.18)}
+.bars i.goal{background:#000}
+.bars i.today{background:var(--orange)}
+.walkrow{padding:14px 10px 0}
+.walkrow .btn{width:100%;height:60px;font-size:18px}
+.walkrow .btn.on{background:#fff;color:#000}
+.walkrow .btn.on .arr{background:var(--orange);color:#fff}
+.qsteps{margin:6px 10px 0;padding:8px 8px 8px 8px;border-radius:30px;background:#f3f1ec;color:#000;display:flex;gap:12px;align-items:center}
+.qsteps .th{width:64px;height:64px;border-radius:22px;background-size:cover;flex:none}
+.qsteps b{font-size:18px;font-weight:600;letter-spacing:-.03em;line-height:1.05;display:block}
+.qsteps .mono{color:var(--grey)!important;display:block;margin-top:4px}
+.note{padding:14px 26px 0;text-align:center;color:rgba(255,255,255,.8)}
+
+/* CHATS */
+.meet{margin:18px 10px 0;border-radius:32px;background:var(--lav);padding:8px;color:#000}
+.meet .img{height:150px;border-radius:26px;background-size:cover;background-position:center;position:relative}
+.meet .img .pill{position:absolute;left:10px;top:10px;height:30px;font-size:13px}
+.meet .body{padding:12px 10px 6px}
+.meet h3{margin:0;font-size:30px;font-weight:600;letter-spacing:-.045em;line-height:.95}
+.meet p{margin:8px 0 12px;font-size:14.5px;font-weight:500;line-height:1.2}
+.meet .mono{color:var(--lav-ink)}
+.clist{padding:8px 20px 0}
+.crow{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:12px 0;border-top:1.5px solid var(--rule)}
+.crow:last-child{border-bottom:1.5px solid var(--rule)}
+.cav{width:54px;height:54px;border-radius:50%;background-size:cover;background-position:center;flex:none}
+.cav.grp{border-radius:17px}
+.crow .t{flex:1;min-width:0}
+.crow .t b{display:block;font-size:19px;font-weight:600;letter-spacing:-.035em;line-height:1.05}
+.crow .t span{display:block;font-size:14px;color:var(--grey);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px;font-weight:500}
+.crow.unread .t span{color:var(--ink)}
+.crow .side{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.crow .side .mono{color:var(--grey)}
+.badge{min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:var(--orange);color:#fff;font:500 11px "JetBrains Mono",monospace;display:flex;align-items:center;justify-content:center}
+#chatview{position:absolute;inset:0;z-index:60;display:none;flex-direction:column;background-color:var(--bg);background-image:var(--dots);background-size:18px 18px}
+#chatview.on{display:flex}
+.chead{display:flex;align-items:center;gap:12px;padding:calc(14px + env(safe-area-inset-top)) 16px 12px}
+.chead .back{width:40px;height:40px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.chead b{display:block;font-size:22px;font-weight:600;letter-spacing:-.04em;line-height:1}
+.chead .mono{color:var(--grey);margin-top:4px;display:block}
+.msgs{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.m{max-width:78%;padding:10px 14px;border-radius:22px;font-size:15.5px;line-height:1.25;background:#fff;align-self:flex-start;font-weight:500;letter-spacing:-.01em}
+.m .mono{display:block;margin-bottom:3px;color:var(--grey)}
+.m.me2{align-self:flex-end;background:#000;color:#fff}
+.m.img{padding:5px}
+.m.img div{width:210px;height:210px;border-radius:18px;background-size:cover;background-position:center}
+.m.event{align-self:stretch;max-width:none;background:var(--lav);border-radius:24px;padding:14px 16px}
+.m.event b{display:block;font-size:20px;font-weight:600;letter-spacing:-.03em}
+.cinput{display:flex;gap:8px;align-items:center;margin:8px 10px calc(12px + env(safe-area-inset-bottom));padding:6px;border-radius:999px;background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.cinput input{flex:1;border:0;outline:0;background:none;font-size:16px;font-weight:500;min-width:0;padding:0 6px}
+.cinput .ib{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;cursor:pointer;background:#f0eee9}
+.cinput button.ib{background:#000;color:#fff}
+.typing{align-self:flex-start;color:var(--grey);padding:2px 6px}
+
+#toast{position:absolute;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;background:#000;color:#fff;padding:12px 18px;border-radius:999px;font-weight:600;font-size:14px;letter-spacing:-.01em;z-index:200;transition:.25s;pointer-events:none;white-space:nowrap}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div id="phone">
+
+  <!-- QUESTS -->
+  <section class="screen active" id="quests">
+    <div class="top"><div class="brand"><i></i>Creative Walks</div><div class="ava" id="meava"></div></div>
+    <div class="title"><h1 class="big">quests<sup class="n" id="qn">7</sup></h1></div>
+    <div class="lede">Choose your own <span class="hl">◎</span> walk.<br>Kleine kreative Aufgaben, die deinen <u>Spaziergang</u> zum <u>Projekt</u> machen.</div>
+    <div class="stats">
+      <div><b id="qs-streak">6</b><span class="mono">Tage Streak</span></div>
+      <div><b id="qs-done">1</b><span class="mono">Erledigt</span></div>
+      <div><b id="qs-steps">0</b><span class="mono">Schritte</span></div>
+    </div>
+    <div class="panel" id="daily"></div>
+    <div class="sech"><h2 class="big">alle<br>quests</h2><span class="mono" style="color:var(--grey)">02 — Liste</span></div>
+    <div class="qlist" id="qlist"></div>
+    <div class="mosaic" id="mosaic"></div>
+    <div class="foot">
+      <h4>Jede Quest ist <span class="hl">einzigartig</span> und hat ihren eigenen <u>Feed und Ort.</u></h4>
+      <button class="btn full" onclick="openCreate()">Eigene Quest erstellen <span class="arr"><svg viewBox="0 0 12 12"><path d="M3 9L9 3M4 3h5v5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></span></button>
+    </div>
+      <p class="mono" style="color:var(--grey);margin:16px 0 0;text-align:center">Deine Daten bleiben auf diesem Gerät gespeichert · <button class="mono" style="text-decoration:underline;color:var(--grey)" onclick="resetAll()">Zurücksetzen</button></p>
+  </section>
+
+  <!-- MAP -->
+  <section class="screen" id="map">
+    <div id="mapview"><div id="world"></div><div id="pins"></div></div>
+    <div class="msearch">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+      <input id="msearch" placeholder="Orte & Spaziergänge" oninput="filterMap()">
+      <div class="ava" id="meava2" style="width:40px;height:40px;border:0"></div>
+    </div>
+    <div class="mchips" id="mchips"></div>
+    <button class="fab" style="bottom:252px" onclick="toggleRoutes()" title="Strecken anderer">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M4 19c4 0 3-6 8-6s4-8 8-8"/><circle cx="4" cy="19" r="2"/><circle cx="20" cy="5" r="2"/></svg>
+    </button>
+    <button class="fab" style="bottom:192px" onclick="centerMe()" title="Mein Standort">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M7 17L17 7M9 7h8v8"/></svg>
+    </button>
+    <div class="routes" id="routes"></div>
+    <div class="mapcard" id="mapcard" style="display:none"></div>
+  </section>
+
+  <!-- FEED -->
+  <section class="screen dark" id="feed">
+    <div class="feedtop"><span class="mono">My walks — Feed <span id="cloudstat"></span></span>
+      <label class="pill white sm" style="cursor:pointer">+ Foto<input type="file" accept="image/*" hidden onchange="uploadFromFeed(this)"></label></div>
+    <div class="title"><h1 class="big" id="feedtitle">created</h1></div>
+    <div class="pills" id="highlights"></div>
+    <div id="qintro"></div>
+    <div id="feedbody"></div>
+  </section>
+
+  <!-- STEPS -->
+  <section class="screen orange" id="steps">
+    <div class="top"><div class="brand"><i></i>Schrittzähler</div><span class="mono" id="today"></span></div>
+    <div class="stephero">
+      <span class="mono">Heute ⁰¹</span>
+      <h1 class="big" id="stepnum">0</h1>
+      <div class="of">von 10.000 Schritten <span id="pct" style="opacity:.7"></span></div>
+    </div>
+    <div class="segs" id="segs"></div>
+    <div class="minis">
+      <div><b id="km">0</b><span class="mono">Kilometer</span></div>
+      <div><b id="kcal">0</b><span class="mono">kcal</span></div>
+      <div><b id="mins">0</b><span class="mono">Aktive Min.</span></div>
+    </div>
+    <div class="walkrow"><button class="btn" id="walkbtn" onclick="toggleWalk()"><span id="walktxt">Spaziergang starten</span><span class="arr"><svg viewBox="0 0 12 12"><path d="M3 2l7 4-7 4z" fill="currentColor"/></svg></span></button></div>
+    <div class="weekcard"><div class="hd"><b>Diese Woche</b><span class="mono" id="weeksum"></span></div><div class="bars" id="bars"></div></div>
+    <div class="qsteps" id="qsteps"></div>
+    <p class="note mono">Prototyp: Schritte werden beim Spaziergang simuliert. In der App kommen sie vom Handy-Sensor.</p>
+  </section>
+
+  <!-- CHATS -->
+  <section class="screen" id="chats">
+    <div class="top"><div class="brand"><i></i>Creative Walks</div><button class="pill sm" onclick="newGroup()">+ Gruppe</button></div>
+    <div class="title"><h1 class="big">commu&shy;nity<sup class="n" id="cn"></sup></h1></div>
+    <div class="pills" id="ctabs"></div>
+    <div class="meet" id="meet"></div>
+    <div class="clist" id="clist"></div>
+  </section>
+
+  <div id="chatview">
+    <div class="chead">
+      <button class="back" onclick="closeChat()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.2"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <div class="cav grp" id="chav" style="width:44px;height:44px;border-radius:14px"></div>
+      <div style="flex:1;min-width:0"><b id="chname"></b><span class="mono" id="chsub"></span></div>
+    </div>
+    <div class="msgs" id="msgs"></div>
+    <form class="cinput" onsubmit="sendMsg(event)">
+      <label class="ib"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg><input type="file" accept="image/*" hidden onchange="sendImg(this)"></label>
+      <input id="msgin" placeholder="Nachricht…" autocomplete="off">
+      <button type="submit" class="ib"><svg width="16" height="16" viewBox="0 0 12 12"><path d="M3 9L9 3M4 3h5v5" fill="none" stroke="#fff" stroke-width="1.6"/></svg></button>
+    </form>
+  </div>
+
+  <div class="scrim" id="scrim" onclick="closeSheet()"></div>
+  <div class="sheet" id="sheet"></div>
+  <div id="toast"></div>
+
+  <nav id="nav">
+    <button data-s="quests" class="on" title="Quests"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg></button>
+    <button data-s="map" title="Karte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></button>
+    <button data-s="feed" title="Feed"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="4"/><path d="M3 10h18M9 5l2 5M15 5l2 5"/></svg></button>
+    <button data-s="steps" title="Schritte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg></button>
+    <button data-s="chats" title="Community"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1.1-4.6A8 8 0 1 1 21 12z"/></svg></button>
+  </nav>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ============================================================
+   SERVER-EINSTELLUNGEN (Supabase)
+   Trage hier deine Werte aus Supabase ein:
+   Project Settings → API → Project URL und Publishable/anon key.
+   Leer lassen = App läuft ohne Server (nur auf diesem Gerät).
+   ============================================================ */
+const SUPABASE_URL = '';
+const SUPABASE_KEY = '';
+
+const $=s=>document.querySelector(s);
+function rng(seed){let s=seed>>>0||1;return()=>{s^=s<<13;s>>>=0;s^=s>>17;s^=s<<5;s>>>=0;return s/4294967296}}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),2000)}
+const fmt=n=>n.toLocaleString('de-DE');
+
+/* ================= data ================= */
+const QUESTS=[
+ {id:'blau',name:'Suche die Farbe Blau',short:'Blau',emoji:'🔵',color:'#5b8def',pal:['#0b2a8a','#2f6bff','#7fb2ff','#bcd8ff','#123d6b','#00a3ff'],
+  desc:'Fotografiere alles, was auf deinem Weg blau ist – Türen, Schilder, Himmel, Graffiti.',
+  steps:['Geh mind. 2.000 Schritte','Finde 5 blaue Dinge','Lade dein Lieblingsbild hoch'],goal:5,xp:50},
+ {id:'formen',name:'Fotografiere Formen',short:'Formen',emoji:'⬛',color:'#7fe0b8',pal:['#1b1b1b','#ff3b2f','#c6f432','#f6f1e7','#2f6bff','#ffcc00'],
+  desc:'Nur Quadrate! Halte Ausschau nach bestimmten Formen in Fenstern, Fliesen und Fassaden.',
+  steps:['Wähle eine Form (Quadrat, Kreis, Dreieck)','Sammle 6 Fotos davon','Gestalte eine Collage aus den Bildern'],goal:6,xp:60},
+ {id:'herbst',name:'Thema Herbst',short:'Herbst',emoji:'🍂',color:'#ff9f43',pal:['#7a2e00','#d9480f','#ff8a1f','#ffc078','#a61e4d','#5c3d1e'],
+  desc:'Schnitzeljagd zum Thema Herbst: Blätter, Kastanien, Nebel, warme Lichter.',
+  steps:['Sammle 4 herbstliche Motive','Ein Motiv aus 3 Perspektiven','Teile das beste Bild'],goal:4,xp:40},
+ {id:'attraktion',name:'Geh zu einer Attraktion',short:'Attraktion',emoji:'🗼',color:'#a688fa',pal:['#2b1a6b','#7b5cff','#c3b5ff','#ff4fa3','#f6f1e7','#1b1b1b'],
+  desc:'Besuche ein Wahrzeichen in deiner Nähe und fotografiere es so, wie es noch niemand gesehen hat.',
+  steps:['Lauf zu einer Sehenswürdigkeit','Ungewöhnliche Perspektive finden','Pic auf der Karte freischalten'],goal:3,xp:70},
+ {id:'menschen',name:'Orte, wo viele Menschen sind',short:'Menschen',emoji:'👥',color:'#ff6b9d',pal:['#c2255c','#ff4fa3','#ffd6e7','#1b1b1b','#ffcc00','#7b5cff'],
+  desc:'Markt, Bahnhof, Platz: Fange Bewegung und Stimmung ein – ohne Gesichter zu zeigen.',
+  steps:['Finde einen belebten Ort','5 Min. nur beobachten','3 Fotos von Bewegung'],goal:3,xp:45},
+ {id:'natur',name:'Geh in die Natur',short:'Natur',emoji:'🌳',color:'#6cc070',pal:['#0b3d1e','#2b8a3e','#8ce99a','#d8f5a2','#5c940d','#1864ab'],
+  desc:'Raus ins Grüne. Achtsamkeitsübung: 2 Minuten stehen bleiben, hören, riechen – dann fotografieren.',
+  steps:['Achtsamkeitsübung (2 Min.)','Texture-Hunting: Rinde, Moos, Steine','Sketch von einem Fund'],goal:4,xp:55},
+ {id:'textur',name:'Texture-Hunting',short:'Texturen',emoji:'🧱',color:'#c9c4b8',pal:['#343a40','#868e96','#ced4da','#e9ecef','#a07c5b','#5c4033'],
+  desc:'Close-ups von Oberflächen: Putz, Holz, Rost, Pflaster. Baut dir eine Textur-Bibliothek.',
+  steps:['8 Texturen fotografieren','Ganz nah rangehen','Collage aus allen Texturen'],goal:8,xp:50},
+];
+const USERS=[['mira','#ff4fa3'],['jonas.walks','#2f6bff'],['lea_draws','#7b5cff'],['tom.k','#ff8a1f'],['sevi','#2b8a3e'],['ana.foto','#c2255c'],['ben_im_quadrat','#1b1b1b'],['nora','#00a3ff']];
+const CAPS={blau:['blaue Tür in der Altstadt 💙','Himmel > alles','das Blau von dem Fahrrad!!','gefunden: blaue Fliesen','Streetart am Kanal'],
+ formen:['nur Quadrate heute ⬛','Fensterraster','Tetris an der Hauswand','Kreise im Pflaster','Dreiecke überall'],
+ herbst:['Kastanienzeit 🌰','Blätterregen im Park','goldene Stunde','Nebel am Morgen'],
+ attraktion:['der Turm mal anders','von unten fotografiert','hier war ich noch nie!','Wahrzeichen remix'],
+ menschen:['Markt am Samstag','Bewegung am Bahnhof','Rush Hour','Platzkonzert'],
+ natur:['Moos-Textur 🌿','2 Minuten nur zuhören','Waldweg','Fluss am Abend'],
+ textur:['Rost','alte Holztür','Putz-Abstrakt','Pflasterstein close-up']};
+
+/* procedural collage "photos" */
+function art(qid,seed){
+  const q=QUESTS.find(x=>x.id===qid)||QUESTS[0]; const r=rng(seed*7919+qid.length*131); const P=q.pal; const p=()=>P[Math.floor(r()*P.length)];
+  let s=`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><rect width='300' height='300' fill='${p()}'/>`;
+  if(qid==='formen'){for(let i=0;i<9;i++){const x=(i%3)*100+8,y=Math.floor(i/3)*100+8;s+=`<rect x='${x}' y='${y}' width='84' height='84' fill='${p()}' transform='rotate(${(r()-.5)*10} ${x+42} ${y+42})'/>`;if(r()>.6)s+=`<circle cx='${x+42}' cy='${y+42}' r='${15+r()*20}' fill='${p()}'/>`}}
+  else if(qid==='textur'){for(let i=0;i<60;i++)s+=`<rect x='${r()*300}' y='${r()*300}' width='${10+r()*80}' height='${3+r()*14}' fill='${p()}' opacity='${.3+r()*.6}' transform='rotate(${r()*30-15} 150 150)'/>`;
+    s+=`<filter id='t'><feTurbulence baseFrequency='.${3+Math.floor(r()*6)}' numOctaves='3'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .6 0'/></filter><rect width='300' height='300' filter='url(#t)'/>`}
+  else if(qid==='natur'){s+=`<rect width='300' height='300' fill='${P[3]}'/>`;for(let i=0;i<5;i++){const y=120+i*40;s+=`<path d='M0 ${y} Q 75 ${y-40-r()*40} 150 ${y} T 300 ${y} V300 H0z' fill='${P[i%3]}'/>`}for(let i=0;i<6;i++){const x=r()*300,y=100+r()*120;s+=`<path d='M${x} ${y} l18 50 h-36z' fill='${P[0]}'/><rect x='${x-3}' y='${y+50}' width='6' height='14' fill='#5c3d1e'/>`}}
+  else if(qid==='herbst'){s+=`<rect width='300' height='300' fill='${P[4]}'/>`;for(let i=0;i<26;i++){const x=r()*300,y=r()*300,sz=12+r()*30;s+=`<ellipse cx='${x}' cy='${y}' rx='${sz}' ry='${sz*.5}' fill='${p()}' transform='rotate(${r()*180} ${x} ${y})'/>`}}
+  else if(qid==='attraktion'){s+=`<rect width='300' height='300' fill='${P[2]}'/><circle cx='${80+r()*140}' cy='80' r='40' fill='${P[3]}'/>`;const x=150+(r()-.5)*60;s+=`<path d='M${x} 30 L${x+45} 300 H${x-45}z' fill='${P[0]}'/><rect x='${x-30}' y='150' width='60' height='10' fill='${P[2]}'/><rect x='${x-38}' y='220' width='76' height='12' fill='${P[2]}'/><rect y='260' width='300' height='40' fill='${P[1]}'/>`}
+  else if(qid==='menschen'){for(let i=0;i<14;i++){const x=r()*300,y=150+r()*120,c=p();s+=`<circle cx='${x}' cy='${y-40}' r='12' fill='${c}'/><rect x='${x-12}' y='${y-26}' width='24' height='50' rx='10' fill='${c}'/>`}s+=`<rect width='300' height='300' fill='white' opacity='.12'/>`}
+  else { // blau & default: city-ish shapes
+    s+=`<rect width='300' height='170' fill='${P[3]}'/>`;for(let i=0;i<6;i++){const x=i*55-10,h=80+r()*120;s+=`<rect x='${x}' y='${300-h}' width='${50+r()*20}' height='${h}' fill='${p()}'/>`;for(let j=0;j<4;j++)s+=`<rect x='${x+8+(j%2)*22}' y='${310-h+Math.floor(j/2)*30}' width='14' height='18' fill='${P[3]}' opacity='.8'/>`}
+    s+=`<circle cx='${60+r()*180}' cy='${60+r()*40}' r='${20+r()*25}' fill='${P[2]}'/>`}
+  // collage bits: torn paper strip + halftone dots
+  if(r()>.4)s+=`<path d='M${r()*80} ${r()*300} l${120+r()*100} ${(r()-.5)*60} l6 26 l-${120+r()*100} ${(r()-.5)*40}z' fill='#fffdf8' opacity='.9'/>`;
+  s+=`<pattern id='h' width='8' height='8' patternUnits='userSpaceOnUse'><circle cx='4' cy='4' r='1.3' fill='#000' opacity='.18'/></pattern><rect width='300' height='300' fill='url(#h)'/></svg>`;
+  return "url('data:image/svg+xml,"+encodeURIComponent(s.replace(/'/g,'"'))+"')";
+}
+
+/* world map geometry (Google Maps style, drawn as SVG) */
+const W=1800,H=1800;
+const ME={x:900,y:960};
+let POSTS=[];
+(function seedPosts(){
+  const r=rng(42); let id=1;
+  const zones={blau:[700,800],formen:[1050,750],herbst:[450,1200],attraktion:[1000,500],menschen:[880,1020],natur:[400,600],textur:[1250,1100]};
+  QUESTS.forEach(q=>{const [cx,cy]=zones[q.id];const n=5+Math.floor(r()*4);
+    for(let i=0;i<n;i++){const u=USERS[Math.floor(r()*USERS.length)];
+      POSTS.push({id:id++,q:q.id,user:u[0],ucol:u[1],img:art(q.id,id*13),x:cx+(r()-.5)*380,y:cy+(r()-.5)*380,likes:Math.floor(4+r()*240),liked:false,cap:CAPS[q.id][i%CAPS[q.id].length],h:1+Math.floor(r()*47),mine:false})}});
+})();
+const ROUTES=[
+ {name:'Kanal-Runde mit Blau-Stopps',user:'jonas.walks',col:'#2f6bff',km:3.4,q:'blau',pts:[[620,1040],[700,900],[760,820],[880,760],[980,700],[1060,640]]},
+ {name:'Parkschleife „Herbstlaub“',user:'mira',col:'#ff8a1f',km:2.1,q:'herbst',pts:[[380,1100],[460,1040],[560,1120],[540,1260],[420,1300],[360,1200],[380,1100]]},
+ {name:'Altstadt-Formen-Jagd',user:'ben_im_quadrat',col:'#ff3b2f',km:4.0,q:'formen',pts:[[900,960],[960,880],[1080,860],[1160,760],[1100,640],[980,560]]},
+ {name:'Waldweg Achtsamkeit',user:'sevi',col:'#2b8a3e',km:5.2,q:'natur',pts:[[240,420],[320,520],[420,560],[520,640],[560,760],[660,860]]},
+];
+function buildWorld(){
+  const r=rng(7); let s=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block;font-family:Roboto,Arial,sans-serif">`;
+  s+=`<rect width="${W}" height="${H}" fill="#f5f3ef"/>`;
+  // parks & forest
+  s+=`<path d="M120 300 Q300 180 560 260 Q680 420 600 700 Q420 820 230 720 Q80 560 120 300z" fill="#c8e6c3"/>`;
+  s+=`<path d="M300 1050 Q480 980 620 1080 Q660 1260 520 1340 Q360 1380 300 1250z" fill="#c8e6c3"/>`;
+  s+=`<rect x="1320" y="300" width="260" height="190" rx="20" fill="#c8e6c3"/>`;
+  s+=`<path d="M1400 1350 Q1600 1300 1760 1420 L1800 1800 L1300 1800 Q1260 1500 1400 1350z" fill="#bfe0b7"/>`;
+  // water (river + lake)
+  s+=`<path d="M-20 1500 C300 1420 520 1560 760 1440 S1100 1180 1300 1240 S1600 1080 1820 1000" fill="none" stroke="#aadaff" stroke-width="70" stroke-linecap="round"/>`;
+  s+=`<ellipse cx="420" cy="480" rx="90" ry="60" fill="#aadaff"/>`;
+  // building blocks
+  for(let gx=0;gx<W;gx+=120)for(let gy=0;gy<H;gy+=120){if(r()<.55){const inPark=(gx<600&&gy<760&&gx>100&&gy>200)||(gx>280&&gx<640&&gy>1020&&gy<1360);if(inPark)continue;
+    for(let k=0;k<2+Math.floor(r()*3);k++)s+=`<rect x="${gx+14+r()*60}" y="${gy+14+r()*60}" width="${18+r()*30}" height="${18+r()*30}" fill="#e9e5de" stroke="#ded8cd" stroke-width="1"/>`}}
+  // minor roads grid
+  let minor='';for(let x=60;x<W;x+=120)minor+=`M${x} 0V${H}`;for(let y=60;y<H;y+=120)minor+=`M0 ${y}H${W}`;
+  s+=`<path d="${minor}" stroke="#dcd7cf" stroke-width="12"/><path d="${minor}" stroke="#fff" stroke-width="9"/>`;
+  // major roads
+  const major=['M0 900 C400 880 700 1000 1000 900 S1500 800 1800 840','M900 0 C880 400 980 700 900 1000 S760 1500 820 1800','M200 0 L1500 1800'];
+  major.forEach(d=>{s+=`<path d="${d}" fill="none" stroke="#f2c94c" stroke-width="22"/><path d="${d}" fill="none" stroke="#fde293" stroke-width="17"/>`});
+  // labels
+  const L=(x,y,t,sz=22,c='#5f6368',w=500)=>s+=`<text x="${x}" y="${y}" font-size="${sz}" fill="${c}" font-weight="${w}" text-anchor="middle" stroke="#fff" stroke-width="4" paint-order="stroke">${t}</text>`;
+  L(360,400,'Stadtwald',26,'#2b7a3a');L(470,1180,'Stadtpark',24,'#2b7a3a');L(1450,400,'Botanischer Garten',20,'#2b7a3a');
+  L(940,1060,'ALTSTADT',30,'#3c4043',700);L(1040,520,'Aussichtsturm',22,'#7b5cff',700);L(1150,1230,'Kanal',22,'#3b82c4');
+  L(1300,880,'Hauptstraße',18,'#8a6d1d');L(320,1520,'Flussufer',22,'#3b82c4');L(1500,1150,'Bahnhof',22,'#3c4043',700);L(700,780,'Kunstmuseum',20,'#c2255c',700);
+  // POI dots
+  [[1040,540,'#7b5cff'],[700,800,'#c2255c'],[1500,1170,'#5f6368']].forEach(([x,y,c])=>s+=`<circle cx="${x}" cy="${y-38}" r="9" fill="${c}" stroke="#fff" stroke-width="3"/>`);
+  // activity heat like snap map
+  s+=`<defs><radialGradient id="heat"><stop offset="0" stop-color="#ff3b2f" stop-opacity=".55"/><stop offset=".45" stop-color="#ffcc00" stop-opacity=".35"/><stop offset="1" stop-color="#2f6bff" stop-opacity="0"/></radialGradient></defs>`;
+  [[900,960,170],[1020,560,120],[460,1180,110]].forEach(([x,y,rr])=>s+=`<circle cx="${x}" cy="${y}" r="${rr}" fill="url(#heat)"/>`);
+  // routes
+  s+=`<g id="routeLayer">`;ROUTES.forEach((R,i)=>{const d='M'+R.pts.map(p=>p.join(' ')).join(' L');s+=`<path d="${d}" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="butt" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="${R.col}" stroke-width="6" stroke-dasharray="2 12" stroke-linecap="round" stroke-linejoin="round" data-r="${i}"/>`});s+=`</g>`;
+  s+=`</svg>`; $('#world').innerHTML=s;
+}
+
+/* ================= state ================= */
+let progress={}; QUESTS.forEach((q,i)=>progress[q.id]=[2,4,4,0,1,1,3][i]||0);
+let done=new Set(['herbst']);
+let steps=4180, walking=null, walkSec=0;
+const WEEK=[7420,10230,5310,8890,12040,6150,0]; // last = today (filled live)
+let feedQ='all', feedView='grid', mapQ='all', showRoutes=true;
+const view={x:0,y:0,k:1};
+function applyView(){
+  const vw=$('#mapview').clientWidth,vh=$('#mapview').clientHeight;
+  view.k=Math.max(.35,Math.min(2.5,view.k));
+  view.x=Math.min(60,Math.max(vw-W*view.k-60,view.x)); view.y=Math.min(60,Math.max(vh-H*view.k-60,view.y));
+  $('#world').style.transform=`translate(${view.x}px,${view.y}px) scale(${view.k})`; drawPins();
+}
+function centerMe(first){const vw=$('#mapview').clientWidth,vh=$('#mapview').clientHeight;if(first)view.k=.75;view.x=vw/2-ME.x*view.k;view.y=vh/2-ME.y*view.k-40;applyView()}
+function visiblePosts(){const t=($('#msearch').value||'').toLowerCase();
+  return POSTS.filter(p=>(mapQ==='all'||p.q===mapQ)&&(!t||(p.cap+' '+p.user+' '+QUESTS.find(q=>q.id===p.q).name).toLowerCase().includes(t)))}
+function drawPins(){
+  const list=visiblePosts(); // cluster in screen space
+  const cell=62, clusters=[];
+  list.forEach(p=>{const sx=view.x+p.x*view.k,sy=view.y+p.y*view.k;let c=clusters.find(c=>Math.abs(c.sx-sx)<cell&&Math.abs(c.sy-sy)<cell);if(c){c.items.push(p)}else clusters.push({sx,sy,items:[p]})});
+  let h=`<div class="me" style="left:${view.x+ME.x*view.k}px;top:${view.y+ME.y*view.k}px"></div>`;
+  clusters.forEach((c,i)=>{const top=c.items.find(p=>p.mine)||c.items[0];
+    h+=`<div class="pin ${top.mine?'mine':''}" style="left:${c.sx}px;top:${c.sy}px" onclick="pinTap(${i})"><div class="ph" style="background-image:${top.img}"></div><div class="tail"></div>${c.items.length>1?`<span class="ct">${c.items.length}</span>`:''}</div>`});
+  drawPins.clusters=clusters; $('#pins').innerHTML=h;
+}
+function pinTap(i){const c=drawPins.clusters[i];
+  if(c.items.length>1&&view.k<1.6){const vw=$('#mapview').clientWidth,vh=$('#mapview').clientHeight;const p=c.items[0];view.k=Math.min(2.2,view.k*1.8);view.x=vw/2-p.x*view.k;view.y=vh/2-p.y*view.k;applyView();return}
+  const p=c.items[0];const q=QUESTS.find(x=>x.id===p.q);
+  $('#routes').style.display='none';const mc=$('#mapcard');mc.style.display='flex';
+  mc.innerHTML=`<div class="ph" style="background-image:${p.img}"></div><div style="flex:1;min-width:0"><b>${esc(p.cap)}</b><small>@${p.user} · ${q.emoji} ${q.short}${c.items.length>1?' · +'+(c.items.length-1)+' weitere':''}</small>
+   <div class="row" style="margin-top:8px"><button class="chip" onclick="feedQ='${p.q}';go('feed')">Im Feed</button><button class="chip" onclick="closeMapCard()">✕</button></div></div>`;
+}
+function closeMapCard(){$('#mapcard').style.display='none';$('#routes').style.display=showRoutes?'flex':'none'}
+function renderChips(){
+  $('#mchips').innerHTML=`<button class="chip ${mapQ==='all'?'on':''}" onclick="mapQ='all';renderChips()">Alle</button>`+QUESTS.map(q=>`<button class="chip ${mapQ===q.id?'on':''}" onclick="mapQ='${q.id}';renderChips()">${q.emoji} ${esc(q.short)}</button>`).join('');
+  drawPins();
+}
+function filterMap(){drawPins()}
+function renderRoutes(){
+  $('#routes').innerHTML=ROUTES.map((R,i)=>`<button class="rcard" onclick="flyRoute(${i})"><div class="rl" style="background:${R.col}"></div><b>${R.name}</b><small>@${R.user} · ${R.km.toString().replace('.',',')} km · ${Math.round(R.km*1350/100)*100} Schritte</small></button>`).join('');
+}
+function toggleRoutes(){showRoutes=!showRoutes;$('#routeLayer').style.display=showRoutes?'':'none';$('#routes').style.display=showRoutes?'flex':'none';toast(showRoutes?'Strecken anderer eingeblendet':'Strecken ausgeblendet')}
+function flyRoute(i){const R=ROUTES[i];const xs=R.pts.map(p=>p[0]),ys=R.pts.map(p=>p[1]);const cx=(Math.min(...xs)+Math.max(...xs))/2,cy=(Math.min(...ys)+Math.max(...ys))/2;
+  const vw=$('#mapview').clientWidth,vh=$('#mapview').clientHeight;view.k=Math.min(1.3,(vw-60)/(Math.max(...xs)-Math.min(...xs)+120));view.x=vw/2-cx*view.k;view.y=vh/2-cy*view.k-40;
+  $('#world').style.transition='transform .4s';applyView();setTimeout(()=>$('#world').style.transition='',420);
+  document.querySelectorAll('[data-r]').forEach(e=>e.setAttribute('stroke-width',e.dataset.r==i?9:6));toast('Route von @'+R.user)}
+(function mapGestures(){
+  const el=$('#mapview');const pts=new Map();let last=null,lastDist=0,moved=0;
+  el.addEventListener('pointerdown',e=>{if(e.target.closest('.pin'))return;el.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});last={x:e.clientX,y:e.clientY};moved=0;el.classList.add('drag');
+    if(pts.size===2){const [a,b]=[...pts.values()];lastDist=Math.hypot(a.x-b.x,a.y-b.y)}});
+  el.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size===2){const [a,b]=[...pts.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);const r=el.getBoundingClientRect();zoomAt((a.x+b.x)/2-r.left,(a.y+b.y)/2-r.top,d/lastDist);lastDist=d;return}
+    view.x+=e.clientX-last.x;view.y+=e.clientY-last.y;moved+=Math.abs(e.clientX-last.x)+Math.abs(e.clientY-last.y);last={x:e.clientX,y:e.clientY};applyView()});
+  const up=e=>{pts.delete(e.pointerId);if(!pts.size)el.classList.remove('drag');else{last=[...pts.values()][0]}if(moved<5&&!e.target.closest('.pin'))closeMapCard()};
+  el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
+  el.addEventListener('wheel',e=>{e.preventDefault();const r=el.getBoundingClientRect();zoomAt(e.clientX-r.left,e.clientY-r.top,e.deltaY<0?1.12:1/1.12)},{passive:false});
+  el.addEventListener('dblclick',e=>{const r=el.getBoundingClientRect();zoomAt(e.clientX-r.left,e.clientY-r.top,1.6)});
+  function zoomAt(px,py,f){const nk=Math.max(.35,Math.min(2.5,view.k*f));const wx=(px-view.x)/view.k,wy=(py-view.y)/view.k;view.k=nk;view.x=px-wx*nk;view.y=py-wy*nk;applyView()}
+})();
+window.addEventListener('resize',()=>{if($('#map').classList.contains('active'))applyView()});
+const CHATS=[
+ {id:'g1',name:'Blau-Jäger:innen',av:'🔵',grp:1,col:'#2f6bff',members:24,unread:3,type:'quest',
+  msgs:[['mira','Wer ist Samstag bei der Blau-Jagd dabei? 💙'],['jonas.walks','Ich! Bring meine Kamera mit'],['@img','blau'],['lea_draws','Hab gestern eine komplett blaue Haustür gefunden 😍'],['@event','📍 Sa., 10:30 · Brunnen am Marktplatz']]},
+ {id:'g2',name:'Sonntags-Spaziergang',av:'🚶',grp:1,col:'#c6f432',members:12,unread:0,type:'treffen',
+  msgs:[['sevi','Nächsten Sonntag Waldweg-Route?'],['tom.k','Gern, 5 km passen'],['sevi','Dann 14 Uhr am Parkplatz Stadtwald 🌳']]},
+ {id:'g3',name:'Collage Club',av:'✂️',grp:1,col:'#ff4fa3',members:31,unread:5,type:'quest',
+  msgs:[['ana.foto','Neue Aufgabe: Collage aus euren Formen-Fotos!'],['@img','formen'],['ben_im_quadrat','Nur Quadrate natürlich ⬛'],['lea_draws','Ich mach heute Abend eine digitale Version']]},
+ {id:'g4',name:'Herbst-Schnitzeljagd',av:'🍂',grp:1,col:'#ff8a1f',members:18,unread:0,type:'quest',
+  msgs:[['mira','Hinweis 3: dort, wo die Kastanien fallen 🌰'],['nora','Stadtpark?!'],['mira','Vielleicht 😏']]},
+ {id:'d1',name:'mira',av:'M',grp:0,col:'#ff4fa3',unread:1,type:'freunde',msgs:[['mira','Dein Blau-Foto ist so gut!!'],['me','Danke 🥹 war Zufall'],['mira','Lass mal zusammen die Kanal-Runde laufen']]},
+ {id:'d2',name:'jonas.walks',av:'J',grp:0,col:'#2f6bff',unread:0,type:'freunde',msgs:[['jonas.walks','Hab dir meine Route geschickt'],['me','Perfekt, teste ich morgen']]},
+];
+
+/* ===== editorial helpers ===== */
+const ARR='<svg viewBox="0 0 12 12"><path d="M3 9L9 3M4 3h5v5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
+function hash(s){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;return h}
+function userAv(u){if(u==='louis')return art('natur',4242);const h=hash(u);return art(QUESTS[h%7].id,h%997)}
+const CHAT_ART={g1:'blau',g2:'natur',g3:'formen',g4:'herbst'};
+const pad=n=>String(n).padStart(2,'0');
+
+/* ===== navigation ===== */
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.s));
+function go(s){
+  document.querySelectorAll('.screen').forEach(e=>e.classList.toggle('active',e.id===s));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.s===s));
+  closeSheet(); closeChat();
+  const scr=document.getElementById(s); if(scr) scr.scrollTop=0;
+  if(s==='map'){requestAnimationFrame(()=>{if(!go.mapInit){centerMe(true);go.mapInit=1}else drawPins()})}
+  if(s==='feed')renderFeed();
+  if(s==='steps')renderSteps();
+  if(s==='quests')renderQuests();
+  if(s==='chats')renderChats();
+  try{history.replaceState(null,'','#'+s)}catch(e){}
+}
+
+/* ===== QUESTS ===== */
+function renderQuests(){
+  const d=QUESTS[0];
+  $('#qn').textContent=QUESTS.length;
+  $('#daily').innerHTML=`<div class="head"><span class="mono">✦ Daily Quest — ${new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})}</span><span class="mono">+${d.xp} XP</span></div>
+    <h2 class="big">farbsuche<br>blau</h2>
+    <div class="pills"><span class="pill out">Alle<sup class="n">${QUESTS.length}</sup></span>${QUESTS.slice(0,4).map(q=>`<button class="pill" onclick="openQuest('${q.id}')">${esc(q.short)}</button>`).join('')}</div>
+    <div class="dcard"><div class="img" style="background-image:${art(d.id,999)}"></div>
+      <div class="body"><h3>${esc(d.name)}</h3><p>${esc(d.desc)}</p><span class="mono" style="color:var(--grey)">Fortschritt ${progress[d.id]}/${d.goal} · ${POSTS.filter(p=>p.q===d.id).length} Bilder in der Community</span>
+      <div class="meta"><b>Quest starten</b><button class="arr fill" onclick="openQuest('${d.id}')" style="width:38px;height:38px">${ARR}</button></div></div></div>`;
+  $('#qlist').innerHTML=QUESTS.slice(1).map((q,i)=>{const p=Math.min(progress[q.id],q.goal),isD=done.has(q.id);
+    return `<button class="qrow" onclick="openQuest('${q.id}')"><div class="th" style="background-image:${art(q.id,77)}"></div>
+    <div class="t"><b class="${isD?'done-t':''}">${esc(q.name)}</b><span class="mono"><span>${pad(i+1)}</span><span>${isD?'Erledigt ✓':p+'/'+q.goal}</span><span class="prog"><i style="width:${p/q.goal*100}%"></i></span><span>+${q.xp} XP</span></span></div>
+    <span class="arr ${isD?'fill':''}">${ARR}</span></button>`}).join('');
+  const pics=POSTS.slice(0,5);
+  $('#mosaic').innerHTML=`<div style="background-image:${pics[0].img}"><span class="arr">${ARR}</span></div><div class="o"></div><div class="w" style="background-image:${pics[2].img}"><span class="arr">${ARR}</span></div><div class="o" style="background:var(--lav)"></div><div style="background-image:${pics[4].img}"><span class="arr">${ARR}</span></div>`;
+  $('#mosaic').querySelectorAll('div').forEach((el,i)=>el.onclick=()=>{feedQ='all';go('feed')});
+  $('#qs-done').textContent=done.size; $('#qs-steps').textContent=fmt(steps);
+  $('#meava').style.backgroundImage=userAv('louis'); $('#meava2').style.backgroundImage=userAv('louis');
+}
+function openQuest(id){
+  const q=QUESTS.find(x=>x.id===id); const n=POSTS.filter(p=>p.q===id).length;
+  openSheet(`<div class="grab"></div><div class="sheet-hero" style="background-image:${art(id,321)}"><span class="pill white sm">${q.emoji} ${esc(q.short)}</span></div>
+   <div class="sheet-body"><span class="mono" style="color:var(--grey)">Quest — ${progress[id]}/${q.goal} · +${q.xp} XP · ${n} Bilder</span>
+   <h2 class="big">${esc(q.name)}</h2><p>${esc(q.desc)}</p>
+   <ul class="steps-list">${q.steps.map((s,i)=>`<li><span class="mono">${pad(i+1)}</span>${esc(s)}</li>`).join('')}</ul>
+   <div class="vstack">
+     <label class="btn full" style="cursor:pointer">Ergebnis hochladen <span class="arr">${ARR}</span><input type="file" accept="image/*" hidden onchange="uploadFor('${id}',this)"></label>
+     <button class="btn light full" onclick="feedQ='${id}';go('feed')">Zum Quest-Feed (${n}) <span class="arr">${ARR}</span></button>
+     <button class="btn light full" onclick="mapQ='${id}';go('map');renderChips()">Auf der Karte ansehen <span class="arr">${ARR}</span></button>
+   </div></div>`);
+}
+function openCreate(){
+  openSheet(`<div class="grab"></div><div class="sheet-body"><span class="mono" style="color:var(--grey)">Neue Quest — für alle sichtbar</span><h2 class="big">eigene<br>quest</h2>
+  <p>Erstelle eine Aufgabe, die andere aus der Community auch machen können.</p>
+  <input class="field" id="cq-name" placeholder="Titel, z. B. „Finde 5 Spiegelungen“">
+  <input class="field" id="cq-desc" placeholder="Kurze Beschreibung">
+  <div class="pills" id="cq-emo" style="padding:4px 0 14px">${['🪞','🎨','🌀','🐦','☕','✏️','🌙'].map((e,i)=>`<button class="pill sm ${i?'out':''}" onclick="[...this.parentNode.children].forEach(c=>c.classList.add('out'));this.classList.remove('out')">${e}</button>`).join('')}</div>
+  <button class="btn full" onclick="createQuest()">Quest veröffentlichen <span class="arr">${ARR}</span></button></div>`);
+}
+function createQuest(){
+  const name=$('#cq-name').value.trim(); if(!name){toast('Gib der Quest einen Titel');return}
+  const emo=$('#cq-emo .pill:not(.out)').textContent;
+  const id='q'+Date.now(); QUESTS.push({id,name,short:name.split(' ').slice(0,2).join(' '),emoji:emo,color:'#ef5a3c',pal:['#ef5a3c','#b9a6ef','#0d0d0d','#f3f1ec','#ffd34d','#5b8def'],desc:$('#cq-desc').value.trim()||'Eine Community-Quest.',steps:['Lauf los','Finde passende Motive','Lade dein Ergebnis hoch'],goal:3,xp:40});
+  progress[id]=0; CAPS[id]=['neu!']; save(); closeSheet(); renderQuests(); renderChips(); toast('Quest veröffentlicht ↗');
+}
+
+/* uploads */
+function readImg(input,cb){const f=input.files&&input.files[0];if(!f)return;const fr=new FileReader();
+  fr.onload=()=>{const im=new Image();im.onload=()=>{const m=900,k=Math.min(1,m/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);let d;try{d=c.toDataURL('image/jpeg',.78)}catch(e){d=fr.result}cb(d)};im.onerror=()=>cb(fr.result);im.src=fr.result};
+  fr.readAsDataURL(f);input.value=''}
+function addMyPost(qid,dataUrl,caption,remote){
+  const q=QUESTS.find(x=>x.id===qid);
+  if(!remote)POSTS.unshift({id:Date.now(),q:qid,user:myName(),ucol:'#000',img:`url('${dataUrl}')`,x:ME.x+(Math.random()-.5)*80,y:ME.y+(Math.random()-.5)*80,likes:0,liked:false,cap:caption||('Mein Beitrag zu „'+q.name+'“'),h:0,mine:true});
+  progress[qid]=(progress[qid]||0)+1; if(progress[qid]>=q.goal&&!done.has(qid)){done.add(qid);toast('Quest erledigt · +'+q.xp+' XP')}else toast('Hochgeladen · Karte & Feed'); save();
+}
+function uploadFor(qid,input){readImg(input,d=>openShare(qid,d))}
+function uploadFromFeed(input){readImg(input,d=>openShare(feedQ==='all'?QUESTS[0].id:feedQ,d))}
+let pendingImg=null;
+function openShare(qid,d){pendingImg=d;
+  openSheet(`<div class="grab"></div><div class="sheet-hero" style="background-image:url('${d}');height:260px"></div>
+  <div class="sheet-body"><span class="mono" style="color:var(--grey)">${cloud.on?'Wird mit der Community geteilt':'Wird auf diesem Gerät gespeichert'}</span><h2 class="big">teilen</h2>
+  <input class="field" id="sh-cap" maxlength="200" placeholder="Bildunterschrift (optional)">
+  <div class="pills" id="sh-q" style="padding:2px 0 14px">${QUESTS.map(q=>`<button class="pill sm ${q.id===qid?'':'out'}" data-q="${q.id}" onclick="[...this.parentNode.children].forEach(c=>c.classList.add('out'));this.classList.remove('out')">${esc(q.short)}</button>`).join('')}</div>
+  <button class="btn full" id="sh-go" onclick="doShare()">Posten <span class="arr">${ARR}</span></button></div>`)}
+async function doShare(){
+  const qid=$('#sh-q .pill:not(.out)').dataset.q, cap=$('#sh-cap').value.trim(), q=QUESTS.find(x=>x.id===qid);
+  const caption=cap||('Mein Beitrag zu „'+q.name+'“');
+  if(cloud.on){const b=$('#sh-go');b.disabled=true;b.firstChild.textContent='Lädt hoch … ';
+    try{await cloudUpload(qid,pendingImg,caption)}catch(e){console.error(e);toast('Upload fehlgeschlagen – nochmal versuchen');b.disabled=false;b.firstChild.textContent='Posten ';return}
+  }else addMyPost(qid,pendingImg,caption);
+  pendingImg=null;closeSheet();feedQ=qid;feedView='list';go('feed');
+}
+
+function openSheet(h){$('#sheet').innerHTML=h;$('#sheet').scrollTop=0;$('#sheet').classList.add('on');$('#scrim').classList.add('on')}
+function closeSheet(){$('#sheet').classList.remove('on');$('#scrim').classList.remove('on')}
+
+/* ===== MAP overrides ===== */
+function pinTap(i){const c=drawPins.clusters[i];
+  if(c.items.length>1&&view.k<1.6){const vw=$('#mapview').clientWidth,vh=$('#mapview').clientHeight;const p=c.items[0];view.k=Math.min(2.2,view.k*1.8);view.x=vw/2-p.x*view.k;view.y=vh/2-p.y*view.k;applyView();return}
+  const p=c.items[0];const q=QUESTS.find(x=>x.id===p.q);
+  $('#routes').style.display='none';const mc=$('#mapcard');mc.style.display='flex';
+  mc.innerHTML=`<div class="ph" style="background-image:${p.img}"></div><div style="flex:1;min-width:0"><b>${esc(p.cap)}</b><span class="mono">@${esc(p.user)} · ${esc(q.short)}${c.items.length>1?' · +'+(c.items.length-1):''}</span>
+   <div style="display:flex;gap:6px;margin-top:8px"><button class="pill sm" onclick="feedQ='${p.q}';go('feed')">Im Feed ↗</button><button class="pill sm out" onclick="closeMapCard()">✕</button></div></div>`;
+}
+function renderChips(){
+  $('#mchips').innerHTML=`<button class="pill sm ${mapQ==='all'?'':'white'}" onclick="mapQ='all';renderChips()">Alle<sup class="n">${POSTS.length}</sup></button>`+
+   QUESTS.map(q=>`<button class="pill sm ${mapQ===q.id?'':'white'}" onclick="mapQ='${q.id}';renderChips()">${esc(q.short)}<sup class="n">${POSTS.filter(p=>p.q===q.id).length}</sup></button>`).join('');
+  drawPins();
+}
+function renderRoutes(){
+  $('#routes').innerHTML=ROUTES.map((R,i)=>`<button class="rcard" onclick="flyRoute(${i})"><div class="th" style="background-image:${art(R.q,i*91+5)}"><i style="background:${R.col}"></i></div>
+   <div style="flex:1;min-width:0"><b>${esc(R.name)}</b><span class="mono">@${R.user} · ${String(R.km).replace('.',',')} km · ${fmt(Math.round(R.km*1350/100)*100)} Schr.</span></div></button>`).join('');
+}
+
+/* ===== FEED ===== */
+function renderFeed(){
+  const list=POSTS.filter(p=>feedQ==='all'||p.q===feedQ);
+  $('#feedtitle').innerHTML=feedQ==='all'?'created':esc((QUESTS.find(q=>q.id===feedQ).short||'').toLowerCase());
+  $('#feedtitle').style.fontSize=feedQ==='all'?'':($('#feedtitle').textContent.length>8?'64px':'88px');
+  $('#highlights').innerHTML=`<button class="pill ${feedQ==='all'?'on':''}" onclick="feedQ='all';renderFeed()">Alle<sup class="n">${POSTS.length}</sup></button>`+
+    QUESTS.map(q=>`<button class="pill ${feedQ===q.id?'on':''}" onclick="feedQ='${q.id}';renderFeed()">${esc(q.short)}<sup class="n">${POSTS.filter(p=>p.q===q.id).length}</sup></button>`).join('');
+  const tog=`<div class="vtog"><button class="${feedView==='grid'?'on':''}" onclick="setView('grid')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="6" rx="2"/><rect x="3" y="15" width="7" height="6" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/></svg></button><button class="${feedView==='list'?'on':''}" onclick="setView('list')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="13" rx="3"/><path d="M3 20h18"/></svg></button></div>`;
+  if(feedQ==='all'){
+    $('#qintro').innerHTML=`<div class="qintro"><div class="th" style="background-image:${userAv('louis')};border-radius:50%"></div><div style="flex:1"><b>Alle Quests</b><span class="mono"><span>${list.length} Bilder</span><span>${list.filter(p=>p.mine).length} von dir</span></span></div>${tog}</div>`;
+  }else{const q=QUESTS.find(x=>x.id===feedQ);const people=new Set(list.map(p=>p.user)).size;
+    $('#qintro').innerHTML=`<div class="qintro"><div class="th" style="background-image:${art(q.id,77)}"></div><div style="flex:1;min-width:0"><b>${esc(q.name)}</b><span class="mono"><span>${list.length} Bilder</span><span>${people} Walker</span><span>Du ${progress[q.id]}/${q.goal}</span></span></div>${tog}</div>`}
+  if(!list.length){$('#feedbody').innerHTML=`<div class="empty">Noch keine Bilder hier.<br><span class="mono" style="color:#a9a6a0">Sei die/der Erste ↗</span></div>`;return}
+  if(feedView==='grid'){
+    const ratios=[1,1.45,.8,1.2,1.7,.9];
+    $('#feedbody').innerHTML=`<div class="masonry">${list.map((p,i)=>`<div class="g ${p.mine?'mine':''}" style="background-image:${p.img};aspect-ratio:1/${ratios[(p.id+i)%6]}" onclick="openPost(${p.id})"></div>`).join('')}</div>`;
+  }else{
+    $('#feedbody').innerHTML=list.map(p=>{const q=QUESTS.find(x=>x.id===p.q);return `<article class="post" id="p${p.id}">
+      <div class="img" style="background-image:${p.img}" ondblclick="like(${p.id},true)"><span class="pill">${esc(q.short)}</span></div>
+      <div class="body"><h3>${esc(p.cap)}</h3>
+      <div class="by"><div class="ava" style="background-image:${userAv(p.user)}"></div><span class="mono">@${esc(p.user)} · ${ago(p)}</span></div>
+      <div class="acts"><button class="pill sm lk ${p.liked?'liked':''}" id="lk${p.id}" style="background:#2a2a2a" onclick="like(${p.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20s-7-4.4-9.2-9A5 5 0 0 1 12 6a5 5 0 0 1 9.2 5C19 15.6 12 20 12 20z"/></svg><span id="lc${p.id}">${fmt(p.likes)}</span></button>
+      <button class="pill sm" style="background:#2a2a2a" onclick="go('chats')">Kommentar</button><span class="sp"></span>
+      ${p.mine?`<button class="pill sm" style="background:#2a2a2a" onclick="deletePost(${p.id})">Löschen</button>`:''}<button class="arr" style="width:36px;height:36px;color:#fff" onclick="mapQ='${p.q}';go('map');renderChips()">${ARR}</button></div></div></article>`}).join('');
+  }
+}
+function openPost(id){feedView='list';renderFeed();setTimeout(()=>{const el=document.getElementById('p'+id);if(el)el.scrollIntoView({block:'start'})},30)}
+function setView(v){feedView=v;renderFeed()}
+function like(id,only){const p=POSTS.find(x=>x.id===id);if(only&&p.liked)return;p.liked=!p.liked;p.likes+=p.liked?1:-1;
+  const b=$('#lk'+id);b.classList.toggle('liked',p.liked);b.classList.remove('pop');void b.offsetWidth;b.classList.add('pop');$('#lc'+id).textContent=fmt(p.likes);save()}
+
+/* ===== STEPS ===== */
+function renderSteps(){
+  $('#stepnum').textContent=fmt(steps);
+  const pct=Math.min(steps/10000,1);
+  $('#pct').textContent='· '+Math.round(pct*100)+' %';
+  const on=Math.round(pct*20);
+  $('#segs').innerHTML=Array.from({length:20},(_,i)=>`<i class="${i<on?'on':''} ${i===on-1&&pct<1?'last':''}"></i>`).join('');
+  $('#km').textContent=(steps*0.00072).toFixed(1).replace('.',',');
+  $('#kcal').textContent=Math.round(steps*0.04);
+  $('#mins').textContent=Math.round(steps/105);
+  const days=['Mo','Di','Mi','Do','Fr','Sa','So'];const today=(new Date().getDay()+6)%7;
+  const w=WEEK.slice();w[today]=steps; for(let i=today+1;i<7;i++)w[i]=0;
+  const max=Math.max(12000,...w);
+  $('#bars').innerHTML=w.map((v,i)=>`<div><i class="${i===today?'today':v>=10000?'goal':''}" style="height:${Math.max(6,v/max*100)}px"></i><span class="mono" style="color:var(--lav-ink)">${days[i]}</span></div>`).join('');
+  $('#weeksum').textContent='Ø '+fmt(Math.round(w.slice(0,today+1).reduce((a,b)=>a+b,0)/(today+1)))+' / Tag';
+  $('#today').textContent=new Date().toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'short'});
+  const rest=Math.max(0,10000-steps);
+  $('#qsteps').innerHTML=rest?`<div class="th" style="background-image:${art('blau',999)}"></div><div style="flex:1"><b>Noch ${fmt(rest)} Schritte — nimm die Daily Quest mit.</b><span class="mono">Farbsuche Blau · +50 XP</span></div><button class="arr fill" style="width:44px;height:44px;margin-right:6px" onclick="openQuest('blau')">${ARR}</button>`
+    :`<div class="th" style="background-image:${art('herbst',5)}"></div><div style="flex:1"><b>Tagesziel geschafft.</b><span class="mono">10.000 Schritte ✓</span></div>`;
+  $('#qs-steps').textContent=fmt(steps);
+}
+function toggleWalk(){
+  const b=$('#walkbtn');
+  if(walking){clearInterval(walking);walking=null;save();b.classList.remove('on');$('#walktxt').textContent='Spaziergang fortsetzen';toast('Pausiert · '+fmt(steps)+' Schritte');return}
+  b.classList.add('on');$('#walktxt').textContent='Läuft … tippen zum Stoppen';
+  walking=setInterval(()=>{const before=steps;steps+=8+Math.floor(Math.random()*9);if(before<10000&&steps>=10000)toast('10.000 Schritte erreicht ✓');if(++toggleWalk.n%10===0)save();if($('#steps').classList.contains('active'))renderSteps()},500);
+}
+
+/* ===== CHATS ===== */
+let chatFilter='alle', openChatId=null, joined=false;
+const REPLIES=['Haha ja! 😄','Bin dabei 🙌','Wie cool, zeig mal!','Ich lauf gleich los','Mega Idee','Wo war das genau?','Das kommt in die Collage 💛'];
+function chatAv(c){return CHAT_ART[c.id]?art(CHAT_ART[c.id],c.id.length*17+3):c.grp?art('formen',hash(c.id)%500):userAv(c.name)}
+function renderChats(){
+  const tabs=[['alle','Alle'],['quest','Quest-Gruppen'],['treffen','Treffen'],['freunde','Freunde']];
+  $('#cn').textContent=CHATS.length;
+  $('#ctabs').innerHTML=tabs.map(([k,t])=>`<button class="pill sm ${chatFilter===k?'':'out'}" onclick="chatFilter='${k}';renderChats()">${t}<sup class="n">${k==='alle'?CHATS.length:CHATS.filter(c=>c.type===k).length}</sup></button>`).join('');
+  $('#meet').innerHTML=`<div class="img" style="background-image:${art('blau',2024)}"><span class="pill white">Sa · 10:30</span></div>
+    <div class="body"><span class="mono">Treffen ⁰¹ — Blau-Jäger:innen</span><h3 style="margin-top:6px">Gemeinsame<br>Blau-Jagd</h3>
+    <p>Treffpunkt Brunnen am Marktplatz. ${joined?8:7} Leute sind dabei, ca. 3,4 km.</p>
+    <button class="btn ${joined?'light':''} full" onclick="joinWalk()">${joined?'Du bist dabei ✓':'Ich bin dabei'} <span class="arr">${ARR}</span></button></div>`;
+  $('#clist').innerHTML=CHATS.filter(c=>chatFilter==='alle'||c.type===chatFilter).map(c=>{const l=c.msgs[c.msgs.length-1];const prev=l[0]==='@img'||l[0]==='@meimg'?'Foto':l[0]==='@event'?l[1]:(l[0]==='me'?'Du: ':(c.grp?l[0]+': ':''))+l[1];
+    return `<button class="crow ${c.unread?'unread':''}" onclick="openChat('${c.id}')"><div class="cav ${c.grp?'grp':''}" style="background-image:${chatAv(c)}"></div>
+    <div class="t"><b>${esc(c.name)}</b><span>${esc(prev)}</span></div><div class="side"><span class="mono">${c.grp?c.members+' Mitgl.':'DM'}</span>${c.unread?`<span class="badge">${c.unread}</span>`:''}</div></button>`}).join('');
+}
+function openChat(id){const c=CHATS.find(x=>x.id===id);c.unread=0;openChatId=id;
+  $('#chav').style.backgroundImage=chatAv(c);$('#chav').style.borderRadius=c.grp?'14px':'50%';
+  $('#chname').textContent=c.name;$('#chsub').textContent=c.grp?c.members+' Mitglieder':'aktiv vor 5 Min.';
+  renderMsgs();$('#chatview').classList.add('on');renderChats()}
+function renderMsgs(){const c=CHATS.find(x=>x.id===openChatId);
+  $('#msgs').innerHTML=c.msgs.map(([u,t])=>u==='@img'?`<div class="m img"><div style="background-image:${art(t,55)}"></div></div>`:
+   u==='@meimg'?`<div class="m img me2"><div style="background-image:url('${t}')"></div></div>`:
+   u==='@event'?`<div class="m event"><span class="mono" style="color:var(--lav-ink)">Treffen</span><b>${esc(t)}</b></div>`:
+   u==='me'?`<div class="m me2">${esc(t)}</div>`:`<div class="m">${c.grp?`<span class="mono">${esc(u)}</span>`:''}${esc(t)}</div>`).join('');
+  $('#msgs').scrollTop=1e9}
+function closeChat(){$('#chatview').classList.remove('on');openChatId=null}
+function sendMsg(e){e.preventDefault();const v=$('#msgin').value.trim();if(!v)return;const c=CHATS.find(x=>x.id===openChatId);c.msgs.push(['me',v]);$('#msgin').value='';renderMsgs();save();fakeReply(c)}
+function sendImg(input){readImg(input,d=>{const c=CHATS.find(x=>x.id===openChatId);c.msgs.push(['@meimg',d]);renderMsgs();save();fakeReply(c)})}
+function fakeReply(c){const who=c.grp?USERS[Math.floor(Math.random()*USERS.length)][0]:c.name;
+  setTimeout(()=>{if(openChatId!==c.id)return;$('#msgs').insertAdjacentHTML('beforeend',`<div class="typing mono">${esc(who)} schreibt …</div>`);$('#msgs').scrollTop=1e9},600);
+  setTimeout(()=>{c.msgs.push([who,REPLIES[Math.floor(Math.random()*REPLIES.length)]]);save();if(openChatId===c.id)renderMsgs()},1800)}
+function joinWalk(){joined=!joined;save();renderChats();toast(joined?'Treffen gespeichert · Sa., 10:30':'Abgemeldet')}
+function newGroup(){openSheet(`<div class="grab"></div><div class="sheet-body"><span class="mono" style="color:var(--grey)">Community</span><h2 class="big">neue<br>gruppe</h2><p>Für eine Quest oder ein gemeinsames Treffen.</p>
+  <input class="field" id="ng" placeholder="Gruppenname"><button class="btn full" onclick="makeGroup()">Gruppe erstellen <span class="arr">${ARR}</span></button></div>`)}
+function makeGroup(){const n=$('#ng').value.trim();if(!n)return;CHATS.unshift({id:'g'+Date.now(),name:n,av:'',grp:1,col:'#000',members:1,unread:0,type:'quest',msgs:[['@event','Gruppe erstellt – lade Leute ein!']]});save();closeSheet();renderChats();openChat(CHATS[0].id)}
+
+/* ===== CLOUD (Supabase) ===== */
+const cloud={on:false,sb:null,uid:null};
+function myName(){try{return localStorage.getItem('cw-name')||'louis'}catch(e){return 'louis'}}
+function ago(p){if(p.ts){const m=Math.round((Date.now()-p.ts)/60000);return m<1?'gerade eben':m<60?'vor '+m+' Min.':m<1440?'vor '+Math.round(m/60)+' Std.':'vor '+Math.round(m/1440)+' T.'}return p.h?'vor '+p.h+' Std.':'gerade eben'}
+function dataUrlToBlob(d){const [h,b]=d.split(',');const mime=h.match(/:(.*?);/)[1];const bin=atob(b);const a=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return new Blob([a],{type:mime})}
+function rowToPost(r){
+  const url=cloud.sb.storage.from('photos').getPublicUrl(r.image_path).data.publicUrl;
+  return {id:9e12+r.id,rid:r.id,path:r.image_path,q:QUESTS.find(q=>q.id===r.quest)?r.quest:'blau',user:r.user_name,img:`url('${url}')`,
+    x:r.x??ME.x,y:r.y??ME.y,likes:0,liked:false,cap:r.caption||'',ts:Date.parse(r.created_at),mine:r.user_id===cloud.uid,remote:true};
+}
+function addRemote(r){if(POSTS.find(p=>p.rid===r.id))return false;POSTS.unshift(rowToPost(r));return true}
+function setStat(t){const e=$('#cloudstat');if(e)e.textContent=t?'· '+t:''}
+function refreshViews(){const a=document.querySelector('.screen.active');if(!a)return;if(a.id==='feed')renderFeed();if(a.id==='quests')renderQuests();if(a.id==='map')renderChips()}
+async function initCloud(){
+  if(!SUPABASE_URL||!SUPABASE_KEY)return;
+  if(typeof supabase==='undefined'){setStat('offline');return}
+  try{
+    cloud.sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+    let {data:{session}}=await cloud.sb.auth.getSession();
+    if(!session){const r=await cloud.sb.auth.signInAnonymously();if(r.error)throw r.error;session=r.data.session}
+    cloud.uid=session.user.id;cloud.on=true;setStat('☁ online');
+    const {data,error}=await cloud.sb.from('posts').select('*').order('created_at',{ascending:true}).limit(300);
+    if(error)throw error;
+    (data||[]).forEach(addRemote);refreshViews();
+    cloud.sb.channel('posts-live').on('postgres_changes',{event:'INSERT',schema:'public',table:'posts'},pl=>{if(addRemote(pl.new)){refreshViews();if(pl.new.user_id!==cloud.uid)toast('Neues Bild von @'+pl.new.user_name)}})
+      .on('postgres_changes',{event:'DELETE',schema:'public',table:'posts'},pl=>{const i=POSTS.findIndex(p=>p.rid===pl.old.id);if(i>=0){POSTS.splice(i,1);refreshViews()}}).subscribe();
+    if(!localStorage.getItem('cw-name'))askName();
+  }catch(e){console.error(e);cloud.on=false;setStat('offline');toast('Server nicht erreichbar – lokaler Modus')}
+}
+function askName(){openSheet(`<div class="grab"></div><div class="sheet-body"><span class="mono" style="color:var(--grey)">Willkommen</span><h2 class="big">wie heißt<br>du?</h2><p>Dein Name steht bei deinen Bildern im Feed.</p>
+  <input class="field" id="nm" maxlength="30" placeholder="z. B. louis.walks"><button class="btn full" onclick="setName()">Los geht's <span class="arr">${ARR}</span></button></div>`)}
+function setName(){const n=$('#nm').value.trim().replace(/\s+/g,'_').slice(0,30);if(!n){toast('Bitte einen Namen eingeben');return}try{localStorage.setItem('cw-name',n)}catch(e){}closeSheet();toast('Hi @'+n)}
+async function cloudUpload(qid,dataUrl,caption){
+  const path=`${cloud.uid}/${Date.now()}.jpg`;
+  const blob=dataUrlToBlob(dataUrl);const up=await cloud.sb.storage.from('photos').upload(path,blob,{contentType:blob.type});if(up.error)throw up.error;
+  const ins=await cloud.sb.from('posts').insert({user_name:myName(),quest:qid,caption,image_path:path,x:ME.x+(Math.random()-.5)*160,y:ME.y+(Math.random()-.5)*160}).select().single();
+  if(ins.error){await cloud.sb.storage.from('photos').remove([path]);throw ins.error}
+  addRemote(ins.data);addMyPost(qid,dataUrl,caption,true);
+}
+async function deletePost(id){const p=POSTS.find(x=>x.id===id);if(!p||!p.mine)return;
+  if(p.remote){const r=await cloud.sb.from('posts').delete().eq('id',p.rid);if(r.error){toast('Löschen fehlgeschlagen');return}await cloud.sb.storage.from('photos').remove([p.path])}
+  POSTS.splice(POSTS.indexOf(p),1);save();renderFeed();toast('Gelöscht')}
+
+/* ===== persistence (this device only) ===== */
+toggleWalk.n=0;
+const KEY='creative-walks-v1';
+const dayKey=()=>new Date().toISOString().slice(0,10);
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify({
+    day:dayKey(),steps,progress,done:[...done],joined,
+    mine:POSTS.filter(p=>p.mine&&!p.remote),liked:POSTS.filter(p=>p.liked&&!p.mine).map(p=>p.id),
+    customQ:QUESTS.filter(q=>/^q\d/.test(q.id)),
+    chats:CHATS.map(c=>({id:c.id,name:c.name,grp:c.grp,members:c.members,type:c.type,av:c.av,col:c.col,unread:c.unread,msgs:c.msgs}))
+  }))}catch(e){toast('Speicher voll – ältere Fotos löschen')}
+}
+function load(){
+  let d;try{d=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
+  if(!d)return;
+  (d.customQ||[]).forEach(q=>{if(!QUESTS.find(x=>x.id===q.id)){QUESTS.push(q);CAPS[q.id]=['neu!']}});
+  Object.assign(progress,d.progress||{}); done=new Set(d.done||[]); joined=!!d.joined;
+  if(d.day===dayKey())steps=d.steps;else steps=0;
+  (d.mine||[]).slice().reverse().forEach(p=>{if(!POSTS.find(x=>x.id===p.id))POSTS.unshift(p)});
+  (d.liked||[]).forEach(id=>{const p=POSTS.find(x=>x.id===id);if(p&&!p.liked){p.liked=true;p.likes++}});
+  (d.chats||[]).forEach(sc=>{const c=CHATS.find(x=>x.id===sc.id);if(c){c.msgs=sc.msgs;c.unread=sc.unread}else CHATS.unshift(sc)});
+}
+function resetAll(){
+  openSheet(`<div class="grab"></div><div class="sheet-body"><span class="mono" style="color:var(--grey)">Achtung</span><h2 class="big">alles<br>löschen?</h2><p>Deine Fotos, Quests, Schritte und Nachrichten auf diesem Gerät werden entfernt.</p>
+  <div class="vstack"><button class="btn full" style="background:var(--orange)" onclick="try{localStorage.removeItem(KEY)}catch(e){};location.reload()">Ja, zurücksetzen <span class="arr">${ARR}</span></button>
+  <button class="btn light full" onclick="closeSheet()">Abbrechen <span class="arr">${ARR}</span></button></div></div>`);
+}
+load();
+
+/* ===== init ===== */
+buildWorld(); renderRoutes(); renderChips(); renderQuests(); renderSteps();
+initCloud();
+const h0=(location.hash||'').slice(1); if(['map','feed','steps','chats'].includes(h0))go(h0);
+</script>
+</body>
+</html>
