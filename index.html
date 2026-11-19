@@ -352,6 +352,7 @@ nav button.on{background:#fff;color:#000}
       <span class="mono">Heute ⁰¹</span>
       <h1 class="big" id="stepnum">0</h1>
       <div class="of">von 10.000 Schritten <span id="pct" style="opacity:.7"></span></div>
+      <span class="mono" id="healthsrc" style="display:block;margin-top:8px"></span>
     </div>
     <div class="segs" id="segs"></div>
     <div class="minis">
@@ -362,7 +363,7 @@ nav button.on{background:#fff;color:#000}
     <div class="walkrow"><button class="btn" id="walkbtn" onclick="toggleWalk()"><span id="walktxt">Spaziergang starten</span><span class="arr"><svg viewBox="0 0 12 12"><path d="M3 2l7 4-7 4z" fill="currentColor"/></svg></span></button></div>
     <div class="weekcard"><div class="hd"><b>Diese Woche</b><span class="mono" id="weeksum"></span></div><div class="bars" id="bars"></div></div>
     <div class="qsteps" id="qsteps"></div>
-    <p class="note mono">Prototyp: Schritte werden beim Spaziergang simuliert. In der App kommen sie vom Handy-Sensor.</p>
+    <p class="note mono">Schritte kommen aus Apple Health (über den Kurzbefehl) oder werden beim Spaziergang per GPS gemessen.</p>
   </section>
 
   <!-- CHATS -->
@@ -1013,6 +1014,7 @@ function renderSteps(){
   $('#qsteps').innerHTML=rest?`<div class="th" style="background-image:${art('blau',999)}"></div><div style="flex:1"><b>Noch ${fmt(rest)} Schritte – nimm die Daily Quest mit.</b><span class="mono">Farbsuche Blau · +50 XP</span></div><button class="arr fill" style="width:44px;height:44px;margin-right:6px" onclick="openQuest('blau')">${ARR}</button>`
     :`<div class="th" style="background-image:${art('herbst',5)}"></div><div style="flex:1"><b>Tagesziel geschafft.</b><span class="mono">10.000 Schritte ✓</span></div>`;
   $('#qs-steps').textContent=fmt(steps);
+  const hl=$('#healthsrc');if(hl)hl.textContent=healthLabel();
 }
 
 /* ===== Teilen mit Standort ===== */
@@ -1136,6 +1138,17 @@ function resetAll(){
   <button class="btn light full" onclick="closeSheet()">Abbrechen <span class="arr">${ARR}</span></button></div></div>`);
 }
 load();
+/* ===== Apple Health über Kurzbefehl: ...?steps=1234 ===== */
+(function healthImport(){
+  try{
+    const q=new URLSearchParams(location.search);const v=q.get('steps');
+    if(v!==null){const n=Math.round(parseFloat(String(v).replace(',','.')));
+      if(isFinite(n)&&n>=0&&n<200000){steps=n;localStorage.setItem('cw-health',JSON.stringify({day:dayKey(),at:Date.now()}));save();setTimeout(()=>toast('Aus Apple Health: '+fmt(n)+' Schritte'),400)}
+      q.delete('steps');const rest=q.toString();history.replaceState(null,'',location.pathname+(rest?'?'+rest:'')+location.hash);
+    }
+  }catch(e){}
+})();
+function healthLabel(){try{const h=JSON.parse(localStorage.getItem('cw-health')||'null');if(h&&h.day===dayKey())return '♥ Apple Health · '+new Date(h.at).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})+' Uhr'}catch(e){}return ''}
 
 /* ===== init ===== */
 renderRoutes(); renderChips(); renderQuests(); renderSteps();
